@@ -3,4 +3,4 @@ This application is deployed on Google Play: https://play.google.com/store/apps/
 
 It is localized in english and french.
 
-Quizz data are stored as csv files.
+Quizz data are stored in csv files.
