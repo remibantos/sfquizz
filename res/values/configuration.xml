@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="questionsDS">questions_en.csv</string>
+    <string name="statisticsDS">stats_en</string>
+    <string name="gamestatusDS">status_en</string>
+</resources>

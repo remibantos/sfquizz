@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SFQuizz</string>
+    <string name="welcomeMessage">Bienvenue</string>
+    <string name="quit">Quitter</string>
+    <string name="stats">Statistiques</string>
+    <string name="next">Suivant</string>
+    <string name="resumeGame">Reprendre la partie</string>
+    <string name="newGame">Nouvelle partie</string>
+    <string name="correct">Correct!</string>
+    <string name="wrong">Faux!</string>
+    <string name="wrong_message">La réponse correcte est:</string>
+    <string name="quit_message">Voulez-vous vraiment quitter le quizz?</string>
+    <string name="cancel">Annuler</string>
+    <string name="close">Fermer</string>
+    <string name="stats1">Toutes parties confondues, vous avez répondu correctement à</string>
+    <string name="stats2">questions sur un total de</string>
+    <string name="stats3">questions</string>
+    <string name="stats4">Vous n\'avez répondu à aucune question</string>
+    <string name="end_quizz">Fin du quizz!\n\nFélicitations, vous avez correctement répondu à</string>
+    <string name="eula_accept">Accepter</string>
+    <string name="eula_refuse">Refuser</string>
+    <string name="eula_title">Conditions d\'utilisations</string>
+    <string name="score">Score:</string>
+</resources>
