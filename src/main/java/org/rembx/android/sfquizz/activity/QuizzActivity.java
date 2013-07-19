@@ -12,7 +12,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import com.google.inject.Inject;
-import org.rembx.android.sfquizz.Eula;
 import org.rembx.android.sfquizz.R;
 import org.rembx.android.sfquizz.helper.QuizzItemsHelper;
 import org.rembx.android.sfquizz.model.GameState;
@@ -71,7 +70,6 @@ public class QuizzActivity extends RoboActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        Eula.show(this);
         startBtn.setOnClickListener(newGameListener);
         resumeBtn.setOnClickListener(resumeGameListener);
         quitBtn.setOnClickListener(quitButtonListener);
