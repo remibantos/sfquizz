@@ -1,3 +1,4 @@
+/*
 package org.rembx.android.sfquizz.repository;
 
 import android.content.Context;
@@ -18,9 +19,11 @@ import static org.junit.Assert.*;
 import static org.powermock.api.easymock.PowerMock.replay;
 import static org.powermock.api.easymock.PowerMock.verify;
 
+*/
 /**
  * @author rembx
- */
+ *//*
+
 @RunWith(JUnit4.class)
 public class RepositoryItemSerializerTest {
 
@@ -80,3 +83,4 @@ public class RepositoryItemSerializerTest {
 
 
 }
+*/

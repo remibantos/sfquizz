@@ -16,13 +16,13 @@ import org.rembx.android.sfquizz.R;
 import org.rembx.android.sfquizz.helper.QuizzItemsHelper;
 import org.rembx.android.sfquizz.model.GameState;
 import org.rembx.android.sfquizz.model.Stats;
-import org.rembx.android.sfquizz.repository.ItemException;
 import org.rembx.android.sfquizz.repository.RepositoryItemsCache;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -91,11 +91,9 @@ public class QuizzActivity extends RoboActivity {
 
     @Override
     public void finish() {
-        try {
-            itemsCache.persistItems(itemsCache.getItem(GameState.class), itemsCache.getItem(Stats.class));
-        } catch (ItemException e) {
-            e.printStackTrace();
-        }
+
+        itemsCache.persistItems(Arrays.asList(itemsCache.getItem(GameState.class), itemsCache.getItem(Stats.class)));
+
         super.finish();
     }
 
@@ -261,29 +259,23 @@ public class QuizzActivity extends RoboActivity {
     }
 
     private void showResumeGameButton() {
-        try {
-            GameState previousGameState = itemsCache.getItem(GameState.class);
-            if (previousGameState != null && previousGameState.getRemainingItemIds().size() > 0) {
-                resumeBtn.setVisibility(View.VISIBLE);
-            }
-        } catch (ItemException e) {
-            e.printStackTrace();
+
+        GameState previousGameState = itemsCache.getItem(GameState.class);
+        if (previousGameState != null && previousGameState.getRemainingItemIds().size() > 0) {
+            resumeBtn.setVisibility(View.VISIBLE);
         }
     }
 
     private void updateGameStateAndStatistics(boolean doAddGoodAnswerIdx) {
-        try {
-            Stats stats = itemsCache.getItem(Stats.class);
-            if (doAddGoodAnswerIdx)
-                stats.getGoodAnsweredItemIds().add(quizzItemsManager.getCurrentItem().getIdx());
-            stats.getAnsweredItemIds().add(quizzItemsManager.getCurrentItem().getIdx());
-            GameState gameState = itemsCache.getItem(GameState.class);
-            gameState.setRemainingItemIds(quizzItemsManager.getRemainingItemsIds());
-            itemsCache.updateItem(stats);
-            itemsCache.updateItem(gameState);
-        } catch (ItemException e) {
-            e.printStackTrace();
-        }
+
+        Stats stats = itemsCache.getItem(Stats.class);
+        if (doAddGoodAnswerIdx)
+            stats.getGoodAnsweredItemIds().add(quizzItemsManager.getCurrentItem().getIdx());
+        stats.getAnsweredItemIds().add(quizzItemsManager.getCurrentItem().getIdx());
+        GameState gameState = itemsCache.getItem(GameState.class);
+        gameState.setRemainingItemIds(quizzItemsManager.getRemainingItemsIds());
+        itemsCache.updateItem(stats);
+        itemsCache.updateItem(gameState);
     }
 
     private String computeEndGameMessage() {
@@ -318,7 +310,7 @@ public class QuizzActivity extends RoboActivity {
         return quizzItemsManager.getTotalAnswered() + 1 + " -  " + quizzItemsManager.getCurrentItem().getValue() + "\n";
     }
 
-    private String handleEndGame() throws ItemException {
+    private String handleEndGame() {
         String tvMessage;
         choices.setVisibility(View.GONE);
         tvMessage = computeEndGameMessage();
@@ -331,7 +323,7 @@ public class QuizzActivity extends RoboActivity {
     /**
      * Init game resources, questions, game state, stats...
      */
-    private void initGameResources() throws IOException, ItemException {
+    private void initGameResources() throws IOException {
         Stats stats = itemsCache.getItem(Stats.class);
         if (stats == null)
             stats = new Stats(new HashSet<Integer>(), new HashSet<Integer>());

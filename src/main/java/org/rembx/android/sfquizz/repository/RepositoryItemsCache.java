@@ -7,14 +7,15 @@ import roboguice.inject.ContextSingleton;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 /**
  * @author rembx
- * Items cache management.
- * Key=Item class
- * Value=Item instance
+ *         Items cache management.
+ *         Key=Item class
+ *         Value=Item instance
  */
 @ContextSingleton
 public class RepositoryItemsCache {
@@ -26,16 +27,16 @@ public class RepositoryItemsCache {
     /**
      * Stores deserialized Item objects
      */
-    private Map<Class, Object> itemsCache;
+    private Map<Class<? extends Serializable>, Object> itemsCache;
 
     @Inject
     public RepositoryItemsCache(Context context, RepositoryItemSerializer repositoryItemSerializer) {
         this.context = context;
         this.repositoryItemSerializer = repositoryItemSerializer;
-        itemsCache = new HashMap<Class, Object>();
+        itemsCache = new HashMap<>();
     }
 
-    public <T> T getItem(Class<T> itemClass) throws ItemException {
+    public <T extends Serializable> T getItem(Class<T> itemClass) {
         T item = null;
         try {
             if (itemsCache.get(itemClass) == null) {
@@ -45,10 +46,8 @@ public class RepositoryItemsCache {
             if (itemsCache.get(itemClass) != null)
                 item = itemClass.cast(itemsCache.get(itemClass));
 
-        } catch (IOException e) {
-            throw new ItemException(e);
-        } catch (ClassNotFoundException e) {
-            throw new ItemException(e);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new IllegalStateException("error while getting item of type: " + itemClass, e);
         }
         return item;
     }
@@ -56,38 +55,38 @@ public class RepositoryItemsCache {
     /**
      * Save items cache
      */
-    public void updateItem(Object item) throws ItemException {
+    public void updateItem(Serializable item) {
         itemsCache.put(item.getClass(), item);
 
     }
 
-    public <T extends Serializable> void persistItem(T item) throws ItemException {
-        try {
-            repositoryItemSerializer.serialize(item);
-        } catch (IOException e) {
-            throw new ItemException(e);
-        }
-    }
 
-    public <T extends Serializable> void persistItems(T... items) throws ItemException {
+    public <T extends Serializable> void persistItems(List<T> items) {
         for (T item : items) {
-            if (item != null)
-                persistItem(item);
+            try {
+                itemsCache.put(item.getClass(), item);
+                repositoryItemSerializer.serialize(item);
+            } catch (IOException e) {
+                throw new IllegalStateException("error during persistence of items to cache", e);
+            }
         }
     }
 
 
-    public void removeItem(Object item) throws ItemException {
-        itemsCache.remove(item.getClass());
+    public void removeItem(Serializable item) {
         try {
+            itemsCache.remove(item.getClass());
             repositoryItemSerializer.delete(item);
-        } catch (Exception e) {
-            throw new ItemException(e);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new IllegalStateException("error during cached item removal", e);
         }
+
 
     }
 
-    public Map<Class, Object> getItemsCache() {
+    public Map<Class<? extends Serializable>, Object> getCache() {
+        if (itemsCache == null)
+            return new HashMap<>();
         return itemsCache;
     }
 }
