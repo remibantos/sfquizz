@@ -1,86 +1,66 @@
-/*
 package org.rembx.android.sfquizz.repository;
 
 import android.content.Context;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.powermock.api.easymock.PowerMock;
 import org.rembx.android.sfquizz.model.GameState;
 
+import java.io.*;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
-import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.*;
-import static org.powermock.api.easymock.PowerMock.replay;
-import static org.powermock.api.easymock.PowerMock.verify;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-*/
-/**
- * @author rembx
- *//*
 
-@RunWith(JUnit4.class)
 public class RepositoryItemSerializerTest {
 
-    Context context;
-    RepositoryItemSerializer repositoryItemSerializer;
-    private RepositoryItemsCache repositoryItemsCache;
+    private Context context;
+    private RepositoryItemSerializer repositoryItemSerializer;
 
     @Before
     public void setup(){
-        context = PowerMock.createMock(Context.class);
-        repositoryItemSerializer=PowerMock.createMock(RepositoryItemSerializer.class);
-        repositoryItemsCache = new RepositoryItemsCache(context,repositoryItemSerializer);
+        context = mock(Context.class);
 
-    }
+        repositoryItemSerializer = new RepositoryItemSerializer(context);
 
-    @After
-    public void tearDown(){
-        verify(context,repositoryItemSerializer);
-    }
-
-    private void replayAll(){
-        replay(context,repositoryItemSerializer);
     }
 
     @Test
-    public void getItem() throws Exception {
-        GameState gameState = new GameState(new ArrayList<Integer>());
-        expect(repositoryItemSerializer.deSerialize(GameState.class)).andReturn(gameState);
+    public void testSerialize() throws Exception {
+        Serializable entity = new GameState(new ArrayList<Integer>());
 
-        replayAll();
+        FileOutputStream fout = new FileOutputStream("./GameState.ser");
 
-        assertNotNull(repositoryItemsCache.getItem(GameState.class));
+        when(context.openFileOutput("GameState.ser", Context.MODE_PRIVATE)).thenReturn(fout);
+
+        repositoryItemSerializer.serialize(entity);
+        assertTrue(new File("GameState.ser").exists());
     }
 
     @Test
-    public void updateItem() throws Exception {
-        GameState gameState = new GameState(new ArrayList<Integer>());
-        repositoryItemSerializer.serialize(gameState);
+    public void testDeSerialize() throws Exception {
 
-        replayAll();
+        Serializable expected = new GameState(new ArrayList<Integer>());
 
-        repositoryItemsCache.updateItem(gameState);
-        assertEquals(gameState,repositoryItemsCache.getItemsCache().get(GameState.class));
+        FileOutputStream fout = new FileOutputStream("./GameState.ser");
+        ObjectOutputStream oos = new ObjectOutputStream(fout);
+        oos.writeObject(expected);
+        oos.close();
+
+        String [] toto = new String[1];
+        toto[0]="GameState.ser";
+        when(context.fileList()).thenReturn(toto);
+
+        FileInputStream fin = new FileInputStream("GameState.ser");
+        when(context.openFileInput("GameState.ser")).thenReturn(fin);
+
+        Object actual = repositoryItemSerializer.deSerialize(GameState.class);
+        assertNotNull(actual);
+        assertEquals(expected,actual);
     }
-
-    @Test
-    public void removeItem() throws Exception{
-        GameState gameState1 = new GameState(new ArrayList<Integer>());
-        Set<Object> items = new HashSet<Object>();
-        repositoryItemsCache.getItemsCache().put(GameState.class,items);
-        repositoryItemSerializer.delete(gameState1);
-        replayAll();
-        repositoryItemsCache.removeItem(gameState1);
-        assertNull(repositoryItemsCache.getItemsCache().get(GameState.class));
-    }
-
 
 
 }
-*/
