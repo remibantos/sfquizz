@@ -1,4 +1,4 @@
-package org.rembx.android.sfquizz.repository;
+package org.rembx.android.sfquizz.persistence;
 
 import android.content.Context;
 import com.google.inject.Inject;
@@ -7,22 +7,19 @@ import roboguice.inject.ContextSingleton;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
 /**
- * @author rembx
- *         Items cache management.
- *         Key=Item class
- *         Value=Item instance
+ * Persistence Manager
+ * use a cache to optimize ItemSerializer usage.
  */
 @ContextSingleton
-public class RepositoryItemsCache {
+public class PersistenceManager {
 
     Context context;
 
-    RepositoryItemSerializer repositoryItemSerializer;
+    ItemSerializer repositoryItemSerializer;
 
     /**
      * Stores deserialized Item objects
@@ -30,7 +27,7 @@ public class RepositoryItemsCache {
     private Map<Class<? extends Serializable>, Object> itemsCache;
 
     @Inject
-    public RepositoryItemsCache(Context context, RepositoryItemSerializer repositoryItemSerializer) {
+    public PersistenceManager(Context context, ItemSerializer repositoryItemSerializer) {
         this.context = context;
         this.repositoryItemSerializer = repositoryItemSerializer;
         itemsCache = new HashMap<>();
@@ -57,26 +54,19 @@ public class RepositoryItemsCache {
      */
     public void updateItem(Serializable item) {
         itemsCache.put(item.getClass(), item);
-
-    }
-
-
-    public <T extends Serializable> void persistItems(List<T> items) {
-        for (T item : items) {
-            try {
-                itemsCache.put(item.getClass(), item);
-                repositoryItemSerializer.serialize(item);
-            } catch (IOException e) {
-                throw new IllegalStateException("error during persistence of items to cache", e);
-            }
+        try{
+            repositoryItemSerializer.serialize(item);
+        }catch (IOException e) {
+            throw new IllegalStateException("error during persistence of item "+item+" to cache", e);
         }
+
     }
 
 
-    public void removeItem(Serializable item) {
+    public void removeItem(Class<? extends  Serializable> itemType) {
         try {
-            itemsCache.remove(item.getClass());
-            repositoryItemSerializer.delete(item);
+            repositoryItemSerializer.delete(itemsCache.get(itemType));
+            itemsCache.remove(itemType);
         } catch (IOException | ClassNotFoundException e) {
             throw new IllegalStateException("error during cached item removal", e);
         }

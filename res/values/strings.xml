@@ -4,7 +4,7 @@
     <string name="welcomeMessage">Press screen to start!</string>
     <string name="eula_accept">Accept</string>
     <string name="quit">Quit</string>
-    <string name="stats">Statistics</string>
+    <string name="usageStatistics">Statistics</string>
     <string name="next">Next</string>
     <string name="resumeGame">Resume game</string>
     <string name="newGame">New game</string>

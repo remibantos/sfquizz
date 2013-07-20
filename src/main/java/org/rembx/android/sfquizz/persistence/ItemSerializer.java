@@ -1,4 +1,4 @@
-package org.rembx.android.sfquizz.repository;
+package org.rembx.android.sfquizz.persistence;
 
 import android.content.Context;
 import com.google.inject.Inject;
@@ -9,16 +9,18 @@ import java.util.Arrays;
 
 /**
  * Serialize objects to handset memory.
+ *
+ * @author remibantos
  */
 @ContextSingleton
-public class RepositoryItemSerializer {
+public class ItemSerializer {
 
     private final static String FILE_EXT = ".ser";
 
     private Context context;
 
     @Inject
-    public RepositoryItemSerializer(Context context) {
+    public ItemSerializer(Context context) {
         this.context = context;
     }
 

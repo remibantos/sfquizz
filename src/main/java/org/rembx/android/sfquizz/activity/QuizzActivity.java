@@ -13,17 +13,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import com.google.inject.Inject;
 import org.rembx.android.sfquizz.R;
-import org.rembx.android.sfquizz.helper.QuizzItemsHelper;
-import org.rembx.android.sfquizz.model.GameState;
-import org.rembx.android.sfquizz.model.Stats;
-import org.rembx.android.sfquizz.repository.RepositoryItemsCache;
+import org.rembx.android.sfquizz.helper.QuizzManager;
+import org.rembx.android.sfquizz.model.UsageStatistics;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 
 /**
  * SF Quizz Activity.
@@ -62,9 +55,8 @@ public class QuizzActivity extends RoboActivity {
     @InjectView(R.id.menuLayout)
     View menuLayout;
     @Inject
-    QuizzItemsHelper quizzItemsManager;
-    @Inject
-    RepositoryItemsCache itemsCache;
+    QuizzManager quizzManager;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,13 +67,13 @@ public class QuizzActivity extends RoboActivity {
         quitBtn.setOnClickListener(quitButtonListener);
         statsBtn.setOnClickListener(statsButtonListener);
 
-        showResumeGameButton();
-
-        try {
-            initGameResources();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (quizzManager.isResumable()) {
+            resumeBtn.setVisibility(View.VISIBLE);
         }
+
+
+        initGameResources();
+
 
         choice1.setOnClickListener(choiceListener);
         choice2.setOnClickListener(choiceListener);
@@ -91,9 +83,6 @@ public class QuizzActivity extends RoboActivity {
 
     @Override
     public void finish() {
-
-        itemsCache.persistItems(Arrays.asList(itemsCache.getItem(GameState.class), itemsCache.getItem(Stats.class)));
-
         super.finish();
     }
 
@@ -108,21 +97,26 @@ public class QuizzActivity extends RoboActivity {
     };
 
     /**
-     * Listener handling game resume
+     * Listener handling game resumeQuizz
      */
     private OnClickListener resumeGameListener = new OnClickListener() {
         public void onClick(View v) {
             try {
-                GameState gameState = itemsCache.getItem(GameState.class);
-                quizzItemsManager.setTotalAnswered(quizzItemsManager.getAnswersCount() - gameState.getRemainingItemIds().size() + 1);
-                quizzItemsManager.setRemainingItemsByIds(gameState.getRemainingItemIds());
-                scoreArea.setText(quizzItemsManager.computeScore());
+                quizzManager.resumeQuizz();
+                updateScoreArea();
             } catch (Exception e) {
                 e.printStackTrace();
             }
             handleStartGame(v);
         }
     };
+
+    private void updateScoreArea() {
+        scoreArea.setText(
+                getApplicationContext().getResources().getString(R.string.score) + " "
+                        + quizzManager.getGoodAnswers() + " / " + quizzManager.getTotalAnswers()
+        );
+    }
 
     /**
      * Listener for quit button
@@ -139,7 +133,8 @@ public class QuizzActivity extends RoboActivity {
      */
     private OnClickListener choiceListener = new OnClickListener() {
         public void onClick(View v) {
-            handleChooseAnswer((RadioButton) v);
+            boolean success = (((RadioButton) v).getText().equals(quizzManager.getCurrent().getQuestion()));
+            alertAnswerResult(success);
         }
     };
 
@@ -172,9 +167,9 @@ public class QuizzActivity extends RoboActivity {
 
         // Perform action on clicks
         questionArea.setVisibility(View.VISIBLE);
-        quizzItemsManager.loadRandomQuestion();
-        questionArea.setText(computeCurrentQuizzQuestion());
-        refreshCurrentQuestionChoices();
+        questionArea.setText(quizzManager.getCurrent().getQuestion());
+
+        updatePossibleAnswersArea();
     }
 
     private void handleQuitApplication(View v) {
@@ -194,35 +189,20 @@ public class QuizzActivity extends RoboActivity {
     }
 
 
-    private void handleChooseAnswer(RadioButton rb) {
-        quizzItemsManager.setTotalAnswered(quizzItemsManager.getTotalAnswered() + 1);
-        alertAnswerChoiceResult(rb);
-
-    }
-
     private void handleShowStatistics(View v) {
-        int allAnswered = 0;
-        int goodAnswered = 0;
 
-        try {
-            Stats stats = itemsCache.getItem(Stats.class);
-            if (stats.getGoodAnsweredItemIds() != null)
-                goodAnswered = stats.getGoodAnsweredItemIds().size();
-            if (stats.getAnsweredItemIds() != null)
-                allAnswered = stats.getAnsweredItemIds().size();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        UsageStatistics usageStatistics = quizzManager.retrieveUsageStatistics();
 
         String mess;
-        if (allAnswered > 0)
-            mess = getResources().getString(R.string.stats1) + " " + goodAnswered + " " + getResources().getString(R.string.stats2) + " "
-                    + quizzItemsManager.getAnswersCount() + " " + getResources().getString(R.string.stats3);
+        if (usageStatistics.getAnswered().size() > 0)
+            mess = getResources().getString(R.string.stats1) + " " + usageStatistics.getGoodAnswered()
+                    + " " + getResources().getString(R.string.stats2) + " "
+                    + quizzManager.getTotalAnswers() + " " + getResources().getString(R.string.stats3);
         else
             mess = getResources().getString(R.string.stats4);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-        builder.setMessage(mess).setCancelable(false).setTitle(R.string.stats)
+        builder.setMessage(mess).setCancelable(false).setTitle(R.string.usageStatistics)
                 .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
@@ -231,72 +211,51 @@ public class QuizzActivity extends RoboActivity {
         builder.show();
     }
 
-    private void alertAnswerChoiceResult(RadioButton rb) {
+    private void alertAnswerResult(boolean success) {
 
         String alertMess = "";
         String alertTitle = "    " + getResources().getString(R.string.wrong) + "    ";
         Integer alertIcon = R.drawable.help;
-        if (rb.getText().equals(quizzItemsManager.getCurrentItem().getAnswer())) {
-            updateGameStateAndStatistics(true);
+
+        if (success) {
             alertTitle = "    " + getResources().getString(R.string.correct) + "    ";
             alertIcon = R.drawable.checked;
-            quizzItemsManager.setGoodAnswersCount(quizzItemsManager.getGoodAnswersCount() + 1);
 
         } else {
-            updateGameStateAndStatistics(false);
-            alertMess = getResources().getString(R.string.wrong_message) + " " + quizzItemsManager.getCurrentItem().getAnswer();
+            alertMess = getResources().getString(R.string.wrong_message) + " " + quizzManager.getCurrent().getAnswer();
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(rb.getContext());
+        final boolean result = success;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
         builder.setTitle(alertTitle).setIcon(alertIcon).setMessage(alertMess).setCancelable(false)
                 .setPositiveButton(R.string.next, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        handleNextQuestion();
+                        handleNextQuestion(result);
                         dialog.cancel();
                     }
                 });
         builder.show();
     }
 
-    private void showResumeGameButton() {
-
-        GameState previousGameState = itemsCache.getItem(GameState.class);
-        if (previousGameState != null && previousGameState.getRemainingItemIds().size() > 0) {
-            resumeBtn.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void updateGameStateAndStatistics(boolean doAddGoodAnswerIdx) {
-
-        Stats stats = itemsCache.getItem(Stats.class);
-        if (doAddGoodAnswerIdx)
-            stats.getGoodAnsweredItemIds().add(quizzItemsManager.getCurrentItem().getIdx());
-        stats.getAnsweredItemIds().add(quizzItemsManager.getCurrentItem().getIdx());
-        GameState gameState = itemsCache.getItem(GameState.class);
-        gameState.setRemainingItemIds(quizzItemsManager.getRemainingItemsIds());
-        itemsCache.updateItem(stats);
-        itemsCache.updateItem(gameState);
-    }
-
     private String computeEndGameMessage() {
         String endMess = getResources().getString(R.string.end_quizz);
-        endMess += " " + quizzItemsManager.getGoodAnswersCount();
+        endMess += " " + quizzManager.getGoodAnswers();
         endMess += " " + getResources().getString(R.string.stats2);
-        endMess += " " + quizzItemsManager.getAnswersCount();
+        endMess += " " + quizzManager.getTotalAnswers();
         endMess += " " + getResources().getString(R.string.stats3);
         return endMess;
     }
 
 
-    private void handleNextQuestion() {
+    private void handleNextQuestion(boolean currentResult) {
         try {
-            quizzItemsManager.popCurrentQuestion();
-            scoreArea.setText(quizzItemsManager.computeScore());
+            updateScoreArea();
             String tvMessage;
-            if ((quizzItemsManager.getRemainingItems().size() > 0)) {
-                quizzItemsManager.loadRandomQuestion();
-                tvMessage = computeCurrentQuizzQuestion();
-                refreshCurrentQuestionChoices();
+            if ((quizzManager.getRemainingItems().size() > 0)) {
+                quizzManager.loadNextQuestion(currentResult);
+                tvMessage = quizzManager.getCurrent().getQuestion();
+                updatePossibleAnswersArea();
             } else {
                 tvMessage = handleEndGame();
             }
@@ -306,16 +265,11 @@ public class QuizzActivity extends RoboActivity {
         }
     }
 
-    private String computeCurrentQuizzQuestion() {
-        return quizzItemsManager.getTotalAnswered() + 1 + " -  " + quizzItemsManager.getCurrentItem().getValue() + "\n";
-    }
-
     private String handleEndGame() {
         String tvMessage;
         choices.setVisibility(View.GONE);
         tvMessage = computeEndGameMessage();
-
-        itemsCache.removeItem(itemsCache.getItem(GameState.class));
+        quizzManager.finish();
         return tvMessage;
     }
 
@@ -323,28 +277,19 @@ public class QuizzActivity extends RoboActivity {
     /**
      * Init game resources, questions, game state, stats...
      */
-    private void initGameResources() throws IOException {
-        Stats stats = itemsCache.getItem(Stats.class);
-        if (stats == null)
-            stats = new Stats(new HashSet<Integer>(), new HashSet<Integer>());
-        //System.out.println(this.fileList());
-        GameState gameState = itemsCache.getItem(GameState.class);
-        if (gameState == null)
-            gameState = new GameState(new ArrayList<Integer>());
-        itemsCache.updateItem(stats);
-        itemsCache.updateItem(gameState);
-        quizzItemsManager.loadQuizzItems();
+    private void initGameResources() {
+        quizzManager.loadQuizz();
     }
 
 
     /**
      * Update quizz item choices view
      */
-    private void refreshCurrentQuestionChoices() {
+    private void updatePossibleAnswersArea() {
         choices.setVisibility(View.VISIBLE);
-        choice1.setText(quizzItemsManager.getCurrentItem().getChoices()[0]);
-        choice2.setText(quizzItemsManager.getCurrentItem().getChoices()[1]);
-        choice3.setText(quizzItemsManager.getCurrentItem().getChoices()[2]);
+        choice1.setText(quizzManager.getCurrent().getProposedAnswers()[0]);
+        choice2.setText(quizzManager.getCurrent().getProposedAnswers()[1]);
+        choice3.setText(quizzManager.getCurrent().getProposedAnswers()[2]);
         choice1.setChecked(false);
         choice2.setChecked(false);
         choice3.setChecked(false);

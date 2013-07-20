@@ -1,4 +1,4 @@
-package org.rembx.android.sfquizz.repository;
+package org.rembx.android.sfquizz.persistence;
 
 import android.content.Context;
 import org.junit.Before;
@@ -15,16 +15,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-public class RepositoryItemSerializerTest {
+public class ItemSerializerTest {
 
     private Context context;
-    private RepositoryItemSerializer repositoryItemSerializer;
+    private ItemSerializer repositoryItemSerializer;
 
     @Before
     public void setup(){
         context = mock(Context.class);
 
-        repositoryItemSerializer = new RepositoryItemSerializer(context);
+        repositoryItemSerializer = new ItemSerializer(context);
 
     }
 

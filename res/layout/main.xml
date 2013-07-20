@@ -164,7 +164,7 @@
                 android:background="@drawable/custom_button_grey"
                 android:gravity="center_vertical|center_horizontal"
                 android:padding="10dip"
-                android:text="@string/stats"
+                android:text="@string/usageStatistics"
                 android:textStyle="italic" />
 
             <Button

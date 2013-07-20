@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Game state
+ * Stores game state
  *
- * @author rembx
+ * @author remibantos
  */
 public class GameState implements Serializable {
 
@@ -21,6 +21,10 @@ public class GameState implements Serializable {
      */
     private List<Integer> remainingItemIds;
 
+    private int totalAnswers;
+
+    private int goodAnswers;
+
 
     public GameState(List<Integer> remainingItemIds) {
         this.remainingItemIds = remainingItemIds;
@@ -32,6 +36,22 @@ public class GameState implements Serializable {
 
     public void setRemainingItemIds(List<Integer> remainingItemIds) {
         this.remainingItemIds = remainingItemIds;
+    }
+
+    public int getTotalAnswers() {
+        return totalAnswers;
+    }
+
+    public void setTotalAnswers(int totalAnswers) {
+        this.totalAnswers = totalAnswers;
+    }
+
+    public int getGoodAnswers() {
+        return goodAnswers;
+    }
+
+    public void setGoodAnswers(int goodAnswers) {
+        this.goodAnswers = goodAnswers;
     }
 
     @Override

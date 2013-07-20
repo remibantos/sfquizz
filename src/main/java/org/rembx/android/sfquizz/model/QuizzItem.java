@@ -2,51 +2,45 @@ package org.rembx.android.sfquizz.model;
 
 
 /**
- * Class which represents a question, associated choices and correct answer
+ * Stores question, associated proposed answers and correct answer index
  *
- * @author rembx
+ * @author remibantos
  */
 
 public class QuizzItem {
 
-    /**
-     * The value
-     */
-    private String value;
+    private String question;
 
-    /**
-     * List of choices
-     */
-    private String[] choices;
+    private String[] proposedAnswers;
 
     private Integer answerIdx;
 
-    private Integer idx = 0;
+    private Integer id = 0;
 
-    public QuizzItem(String question, String[] choices, Integer answer, Integer idx) {
-        this.value = question;
-        this.choices = choices;
+    public QuizzItem(String question, String[] proposedAnswers, Integer answer, Integer id) {
+        this.question = question;
+        this.proposedAnswers = proposedAnswers;
         this.answerIdx = answer;
-        this.idx = idx;
+        this.id = id;
     }
 
-    public String getValue() {
-        return value;
+    public String getQuestion() {
+        return question;
     }
 
-    public String[] getChoices() {
-        return choices;
+    public String[] getProposedAnswers() {
+        return proposedAnswers;
     }
 
     public String getAnswer() {
-        return choices[answerIdx];
+        return proposedAnswers[answerIdx];
     }
 
     public String toString() {
-        return value;
+        return question;
     }
 
-    public Integer getIdx() {
-        return idx;
+    public Integer getId() {
+        return id;
     }
 }

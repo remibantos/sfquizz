@@ -3,7 +3,7 @@
     <string name="app_name">SFQuizz</string>
     <string name="welcomeMessage">Bienvenue</string>
     <string name="quit">Quitter</string>
-    <string name="stats">Statistiques</string>
+    <string name="usageStatistics">Statistiques</string>
     <string name="next">Suivant</string>
     <string name="resumeGame">Reprendre la partie</string>
     <string name="newGame">Nouvelle partie</string>
