@@ -37,14 +37,14 @@ public class UsageStatistics implements Serializable {
 
     public Set<Integer> getAnswered() {
         if (answered==null)
-            return new HashSet<>();
+            return new HashSet<Integer>();
         return answered;
     }
 
 
     public Set<Integer> getGoodAnswered() {
         if (goodAnswered == null)
-            return goodAnswered;
+            return new HashSet<Integer>();
         return goodAnswered;
     }
 

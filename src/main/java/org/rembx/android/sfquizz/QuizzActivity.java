@@ -1,4 +1,4 @@
-package org.rembx.android.sfquizz.activity;
+package org.rembx.android.sfquizz;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -12,8 +12,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import com.google.inject.Inject;
-import org.rembx.android.sfquizz.R;
-import org.rembx.android.sfquizz.helper.QuizzManager;
 import org.rembx.android.sfquizz.model.UsageStatistics;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
@@ -22,7 +20,7 @@ import roboguice.inject.InjectView;
  * SF Quizz Activity.
  * Use roboguice to inject dependencies.
  *
- * @author rembx
+ * @author remibantos
  */
 public class QuizzActivity extends RoboActivity {
 

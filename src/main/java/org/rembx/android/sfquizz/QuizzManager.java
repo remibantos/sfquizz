@@ -1,8 +1,7 @@
-package org.rembx.android.sfquizz.helper;
+package org.rembx.android.sfquizz;
 
 import android.content.Context;
 import com.google.inject.Inject;
-import org.rembx.android.sfquizz.R;
 import org.rembx.android.sfquizz.model.GameState;
 import org.rembx.android.sfquizz.model.QuizzItem;
 import org.rembx.android.sfquizz.model.UsageStatistics;
@@ -43,7 +42,7 @@ public class QuizzManager {
     private int totalAnswers;
 
     public void loadQuizz() {
-        remainingItems = new ArrayList<>();
+        remainingItems = new ArrayList<QuizzItem>();
 
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(context.getAssets()
@@ -118,7 +117,7 @@ public class QuizzManager {
     }
 
     private void loadQuizzByItemsIds(List<Integer> ids) throws IOException {
-        remainingItems = new ArrayList<>();
+        remainingItems = new ArrayList<QuizzItem>();
 
         BufferedReader br = new BufferedReader(new InputStreamReader(context.getAssets()
                 .open(context.getResources().getString(R.string.questionsDS))));
@@ -173,7 +172,7 @@ public class QuizzManager {
     }
 
     public List<Integer> getRemainingItemsIds() {
-        List<Integer> remainingIds = new ArrayList<>();
+        List<Integer> remainingIds = new ArrayList<Integer>();
         for (QuizzItem item : remainingItems) {
             remainingIds.add(item.getId());
         }

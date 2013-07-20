@@ -30,7 +30,7 @@ public class PersistenceManager {
     public PersistenceManager(Context context, ItemSerializer repositoryItemSerializer) {
         this.context = context;
         this.repositoryItemSerializer = repositoryItemSerializer;
-        itemsCache = new HashMap<>();
+        itemsCache = new HashMap<Class<? extends Serializable>, Object>();
     }
 
     public <T extends Serializable> T getItem(Class<T> itemClass) {
@@ -43,7 +43,9 @@ public class PersistenceManager {
             if (itemsCache.get(itemClass) != null)
                 item = itemClass.cast(itemsCache.get(itemClass));
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
+            throw new IllegalStateException("error while getting item of type: " + itemClass, e);
+        }catch (ClassNotFoundException e) {
             throw new IllegalStateException("error while getting item of type: " + itemClass, e);
         }
         return item;
@@ -67,7 +69,9 @@ public class PersistenceManager {
         try {
             repositoryItemSerializer.delete(itemsCache.get(itemType));
             itemsCache.remove(itemType);
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
+            throw new IllegalStateException("error during cached item removal", e);
+        }catch (ClassNotFoundException e){
             throw new IllegalStateException("error during cached item removal", e);
         }
 
@@ -76,7 +80,7 @@ public class PersistenceManager {
 
     public Map<Class<? extends Serializable>, Object> getCache() {
         if (itemsCache == null)
-            return new HashMap<>();
+            return new HashMap<Class<? extends Serializable>, Object>();
         return itemsCache;
     }
 }

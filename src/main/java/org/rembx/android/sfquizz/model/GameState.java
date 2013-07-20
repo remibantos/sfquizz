@@ -1,6 +1,7 @@
 package org.rembx.android.sfquizz.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,6 +32,8 @@ public class GameState implements Serializable {
     }
 
     public List<Integer> getRemainingItemIds() {
+        if (remainingItemIds == null)
+            return new ArrayList<Integer>();
         return remainingItemIds;
     }
 
