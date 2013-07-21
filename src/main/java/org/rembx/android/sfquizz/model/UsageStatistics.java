@@ -25,26 +25,19 @@ public class UsageStatistics implements Serializable {
     /**
      * The list of all user good answered QuizzItem Ids
      */
-    private Set<Integer> goodAnswered
-            ;
+    private Set<Integer> goodAnswered;
 
-
-    public UsageStatistics(Set<Integer> answered, Set<Integer> goodAnsweredItemIds) {
-        this.answered = answered;
-        this.goodAnswered = goodAnsweredItemIds;
+    public UsageStatistics(){
+        answered =  new HashSet<Integer>();
+        goodAnswered =  new HashSet<Integer>();
     }
 
-
     public Set<Integer> getAnswered() {
-        if (answered==null)
-            return new HashSet<Integer>();
         return answered;
     }
 
 
     public Set<Integer> getGoodAnswered() {
-        if (goodAnswered == null)
-            return new HashSet<Integer>();
         return goodAnswered;
     }
 

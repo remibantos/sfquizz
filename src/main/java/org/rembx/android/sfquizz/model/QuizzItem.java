@@ -17,6 +17,8 @@ public class QuizzItem {
 
     private Integer id = 0;
 
+    private boolean hasBeenCorrectlyAnswered;
+
     public QuizzItem(String question, String[] proposedAnswers, Integer answer, Integer id) {
         this.question = question;
         this.proposedAnswers = proposedAnswers;
@@ -42,5 +44,13 @@ public class QuizzItem {
 
     public Integer getId() {
         return id;
+    }
+
+    public boolean hasBeenCorrectlyAnswered() {
+        return hasBeenCorrectlyAnswered;
+    }
+
+    public void setHasBeenCorrectlyAnswered(boolean hasBeenCorrectlyAnswered) {
+        this.hasBeenCorrectlyAnswered = hasBeenCorrectlyAnswered;
     }
 }

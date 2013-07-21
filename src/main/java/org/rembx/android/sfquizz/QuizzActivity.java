@@ -18,7 +18,6 @@ import roboguice.inject.InjectView;
 
 /**
  * SF Quizz Activity.
- * Use roboguice to inject dependencies.
  *
  * @author remibantos
  */
@@ -55,7 +54,6 @@ public class QuizzActivity extends RoboActivity {
     @Inject
     QuizzManager quizzManager;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,27 +67,22 @@ public class QuizzActivity extends RoboActivity {
             resumeBtn.setVisibility(View.VISIBLE);
         }
 
-
-        initGameResources();
-
-
         choice1.setOnClickListener(choiceListener);
         choice2.setOnClickListener(choiceListener);
         choice3.setOnClickListener(choiceListener);
     }
-
 
     @Override
     public void finish() {
         super.finish();
     }
 
-
     /**
      * Listener handling new game launch
      */
     private OnClickListener newGameListener = new OnClickListener() {
         public void onClick(View v) {
+            quizzManager.newQuizz();
             handleStartGame(v);
         }
     };
@@ -99,12 +92,8 @@ public class QuizzActivity extends RoboActivity {
      */
     private OnClickListener resumeGameListener = new OnClickListener() {
         public void onClick(View v) {
-            try {
-                quizzManager.resumeQuizz();
-                updateScoreArea();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            quizzManager.resumeQuizz();
+            updateScoreArea();
             handleStartGame(v);
         }
     };
@@ -125,17 +114,14 @@ public class QuizzActivity extends RoboActivity {
         }
     };
 
-
     /**
      * Listener for remainingQuestions radio select perform stats and game status update.
      */
     private OnClickListener choiceListener = new OnClickListener() {
         public void onClick(View v) {
-            boolean success = (((RadioButton) v).getText().equals(quizzManager.getCurrent().getQuestion()));
-            alertAnswerResult(success);
+            alertAnswerResult((RadioButton) v);
         }
     };
-
 
     /**
      * Listener for stats button
@@ -145,7 +131,6 @@ public class QuizzActivity extends RoboActivity {
             handleShowStatistics(v);
         }
     };
-
 
     /**
      * Called for resumed or newly started game
@@ -165,9 +150,8 @@ public class QuizzActivity extends RoboActivity {
 
         // Perform action on clicks
         questionArea.setVisibility(View.VISIBLE);
-        questionArea.setText(quizzManager.getCurrent().getQuestion());
 
-        updatePossibleAnswersArea();
+        handleNextQuestion();
     }
 
     private void handleQuitApplication(View v) {
@@ -186,14 +170,13 @@ public class QuizzActivity extends RoboActivity {
         alert.show();
     }
 
-
     private void handleShowStatistics(View v) {
 
         UsageStatistics usageStatistics = quizzManager.retrieveUsageStatistics();
 
         String mess;
         if (usageStatistics.getAnswered().size() > 0)
-            mess = getResources().getString(R.string.stats1) + " " + usageStatistics.getGoodAnswered()
+            mess = getResources().getString(R.string.stats1) + " " + usageStatistics.getGoodAnswered().size()
                     + " " + getResources().getString(R.string.stats2) + " "
                     + quizzManager.getTotalAnswers() + " " + getResources().getString(R.string.stats3);
         else
@@ -209,13 +192,16 @@ public class QuizzActivity extends RoboActivity {
         builder.show();
     }
 
-    private void alertAnswerResult(boolean success) {
+    private void alertAnswerResult(RadioButton rb) {
+
+        boolean success = rb.getText().equals(quizzManager.getCurrent().getAnswer());
 
         String alertMess = "";
         String alertTitle = "    " + getResources().getString(R.string.wrong) + "    ";
         Integer alertIcon = R.drawable.help;
 
         if (success) {
+            quizzManager.getCurrent().setHasBeenCorrectlyAnswered(true);
             alertTitle = "    " + getResources().getString(R.string.correct) + "    ";
             alertIcon = R.drawable.checked;
 
@@ -223,15 +209,14 @@ public class QuizzActivity extends RoboActivity {
             alertMess = getResources().getString(R.string.wrong_message) + " " + quizzManager.getCurrent().getAnswer();
         }
 
-        final boolean result = success;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(rb.getContext());
         builder.setTitle(alertTitle).setIcon(alertIcon).setMessage(alertMess).setCancelable(false)
                 .setPositiveButton(R.string.next, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        handleNextQuestion(result);
+                        handleNextQuestion();
                         dialog.cancel();
                     }
+
                 });
         builder.show();
     }
@@ -245,39 +230,33 @@ public class QuizzActivity extends RoboActivity {
         return endMess;
     }
 
-
-    private void handleNextQuestion(boolean currentResult) {
+    private void handleNextQuestion() {
         try {
-            updateScoreArea();
-            String tvMessage;
-            if ((quizzManager.getRemainingItems().size() > 0)) {
-                quizzManager.loadNextQuestion(currentResult);
-                tvMessage = quizzManager.getCurrent().getQuestion();
+            if ((quizzManager.hasRemainingItems())) {
+                quizzManager.loadNextQuestion();
                 updatePossibleAnswersArea();
+                updateScoreArea();
+                questionArea.setText(
+                        quizzManager.getTotalAnswered() + 1 + " -  " + quizzManager.getCurrent().getQuestion()
+                );
             } else {
-                tvMessage = handleEndGame();
+                endGame();
             }
-            questionArea.setText(tvMessage);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private String handleEndGame() {
+    private void endGame() {
         String tvMessage;
         choices.setVisibility(View.GONE);
-        tvMessage = computeEndGameMessage();
         quizzManager.finish();
-        return tvMessage;
+        tvMessage = computeEndGameMessage();
+        updateScoreArea();
+        questionArea.setText(tvMessage);
     }
 
-
-    /**
-     * Init game resources, questions, game state, stats...
-     */
-    private void initGameResources() {
-        quizzManager.loadQuizz();
-    }
 
 
     /**
@@ -292,5 +271,4 @@ public class QuizzActivity extends RoboActivity {
         choice2.setChecked(false);
         choice3.setChecked(false);
     }
-
 }

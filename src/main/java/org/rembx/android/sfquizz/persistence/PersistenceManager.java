@@ -54,7 +54,7 @@ public class PersistenceManager {
     /**
      * Save items cache
      */
-    public void updateItem(Serializable item) {
+    public void persist(Serializable item) {
         itemsCache.put(item.getClass(), item);
         try{
             repositoryItemSerializer.serialize(item);
@@ -62,6 +62,12 @@ public class PersistenceManager {
             throw new IllegalStateException("error during persistence of item "+item+" to cache", e);
         }
 
+    }
+
+    public void persist(Serializable ... items) {
+        for (Serializable item: items){
+            persist(item);
+        }
     }
 
 

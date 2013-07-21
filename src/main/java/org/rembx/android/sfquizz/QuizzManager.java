@@ -40,8 +40,9 @@ public class QuizzManager {
 
     private int goodAnswers;
     private int totalAnswers;
+    private int totalAnswered;
 
-    public void loadQuizz() {
+    public void newQuizz() {
         remainingItems = new ArrayList<QuizzItem>();
 
         try {
@@ -57,17 +58,23 @@ public class QuizzManager {
         }
         randomizeRemainingItems();
 
-        current = getRemainingItems().get(0);
         totalAnswers = remainingItems.size();
-        persistenceManager.getItem(GameState.class).setTotalAnswers(totalAnswers);
+        GameState gameState = new GameState();
+        gameState.setTotalAnswers(totalAnswers);
+        persistenceManager.persist(gameState);
+        if (persistenceManager.getItem(UsageStatistics.class) == null){
+            persistenceManager.persist(new UsageStatistics());
+        }
 
     }
 
     public void resumeQuizz() {
         GameState gameState = persistenceManager.getItem(GameState.class);
         try {
-            loadQuizzByItemsIds(gameState.getRemainingItemIds());
+            loadRemainingItemsByIds(gameState.getRemainingItemIds());
+            randomizeRemainingItems();
             totalAnswers = gameState.getTotalAnswers();
+            totalAnswered = gameState.getTotalAnswered();
             goodAnswers = gameState.getGoodAnswers();
         } catch (IOException e) {
             throw new IllegalStateException("error while resuming game state", e);
@@ -81,29 +88,28 @@ public class QuizzManager {
     }
 
     /**
-     *
+     * Update statistics and game state if needed
+     * update current question with next QuizzItem from remainingItems
      */
-    public void loadNextQuestion(boolean currentResult) {
-        if (current != null) {
-            getRemainingItems().remove(current);
-        }
-        current = getRemainingItems().get(0);
+    public void loadNextQuestion() {
 
-        UsageStatistics usageStatistics = persistenceManager.getItem(UsageStatistics.class);
         GameState gameState = persistenceManager.getItem(GameState.class);
-        if (currentResult){
-            goodAnswers++;
-            usageStatistics.getGoodAnswered().add(current.getId());
-        }
-        usageStatistics.getAnswered().add(current.getId());
+        if (current != null) {
+            updateCountersAndUsageStatistics();
 
-        gameState.setRemainingItemIds(getRemainingItemsIds());
-        gameState.setGoodAnswers(goodAnswers);
-        persistenceManager.updateItem(usageStatistics);
-        persistenceManager.updateItem(gameState);
+            gameState.setRemainingItemIds(remainingItemsIds());
+            gameState.setGoodAnswers(goodAnswers);
+            gameState.setTotalAnswered(totalAnswered);
+            persistenceManager.persist(gameState);
+        }
+
+        current = remainingItems.get(0);
+        remainingItems.remove(current);
+
     }
 
-    public void finish(){
+    public void finish() {
+        updateCountersAndUsageStatistics();
         persistenceManager.removeItem(GameState.class);
     }
 
@@ -116,9 +122,8 @@ public class QuizzManager {
         Collections.shuffle(remainingItems, new Random(System.nanoTime()));
     }
 
-    private void loadQuizzByItemsIds(List<Integer> ids) throws IOException {
+    private void loadRemainingItemsByIds(List<Integer> ids) throws IOException {
         remainingItems = new ArrayList<QuizzItem>();
-
         BufferedReader br = new BufferedReader(new InputStreamReader(context.getAssets()
                 .open(context.getResources().getString(R.string.questionsDS))));
         String questLine;
@@ -127,10 +132,18 @@ public class QuizzManager {
             if (ids.contains(quizzItem.getId()))
                 remainingItems.add(quizzItem);
         }
-        randomizeRemainingItems();
-        current = getRemainingItems().get(0);
-        totalAnswers = remainingItems.size();
+    }
 
+
+    private void updateCountersAndUsageStatistics() {
+        UsageStatistics usageStatistics = persistenceManager.getItem(UsageStatistics.class);
+        if (current.hasBeenCorrectlyAnswered()) {
+            goodAnswers++;
+            usageStatistics.getGoodAnswered().add(current.getId());
+        }
+        totalAnswered++;
+        usageStatistics.getAnswered().add(current.getId());
+        persistenceManager.persist(usageStatistics);
     }
 
     /**
@@ -163,15 +176,20 @@ public class QuizzManager {
         return totalAnswers;
     }
 
+
+    public int getTotalAnswered() {
+        return totalAnswered;
+    }
+
     /**
      * Contains a set of remaining remainingItems (not already answered during the
      * game) Answered remainingItems are removed from this list
      */
-    public List<QuizzItem> getRemainingItems() {
-        return remainingItems;
+    public boolean hasRemainingItems() {
+        return (remainingItems != null && remainingItems.size() > 0);
     }
 
-    public List<Integer> getRemainingItemsIds() {
+    public List<Integer> remainingItemsIds() {
         List<Integer> remainingIds = new ArrayList<Integer>();
         for (QuizzItem item : remainingItems) {
             remainingIds.add(item.getId());

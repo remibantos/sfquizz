@@ -22,18 +22,21 @@ public class GameState implements Serializable {
      */
     private List<Integer> remainingItemIds;
 
+    private int totalAnswered;
+
     private int totalAnswers;
 
     private int goodAnswers;
 
+    public GameState() {
+        remainingItemIds = new ArrayList<Integer>();
+    }
 
     public GameState(List<Integer> remainingItemIds) {
         this.remainingItemIds = remainingItemIds;
     }
 
     public List<Integer> getRemainingItemIds() {
-        if (remainingItemIds == null)
-            return new ArrayList<Integer>();
         return remainingItemIds;
     }
 
@@ -41,12 +44,12 @@ public class GameState implements Serializable {
         this.remainingItemIds = remainingItemIds;
     }
 
-    public int getTotalAnswers() {
-        return totalAnswers;
+    public int getTotalAnswered() {
+        return totalAnswered;
     }
 
-    public void setTotalAnswers(int totalAnswers) {
-        this.totalAnswers = totalAnswers;
+    public void setTotalAnswered(int totalAnswered) {
+        this.totalAnswered = totalAnswered;
     }
 
     public int getGoodAnswers() {
@@ -57,6 +60,14 @@ public class GameState implements Serializable {
         this.goodAnswers = goodAnswers;
     }
 
+    public int getTotalAnswers() {
+        return totalAnswers;
+    }
+
+    public void setTotalAnswers(int totalAnswers) {
+        this.totalAnswers = totalAnswers;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,12 +75,21 @@ public class GameState implements Serializable {
 
         GameState gameState = (GameState) o;
 
-        return !(remainingItemIds != null ? !remainingItemIds.equals(gameState.remainingItemIds) : gameState.remainingItemIds != null);
+        if (goodAnswers != gameState.goodAnswers) return false;
+        if (totalAnswered != gameState.totalAnswered) return false;
+        if (totalAnswers != gameState.totalAnswers) return false;
+        if (remainingItemIds != null ? !remainingItemIds.equals(gameState.remainingItemIds) : gameState.remainingItemIds != null)
+            return false;
 
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return remainingItemIds != null ? remainingItemIds.hashCode() : 0;
+        int result = remainingItemIds != null ? remainingItemIds.hashCode() : 0;
+        result = 31 * result + totalAnswered;
+        result = 31 * result + totalAnswers;
+        result = 31 * result + goodAnswers;
+        return result;
     }
 }

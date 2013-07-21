@@ -54,7 +54,7 @@ public class PersistenceManagerTest {
         Serializable serializable = new Serializable() {
         };
 
-        instance.updateItem(serializable);
+        instance.persist(serializable);
 
         assertEquals(1, instance.getCache().size());
         assertEquals(serializable,instance.getCache().get(serializable.getClass()));
@@ -80,5 +80,42 @@ public class PersistenceManagerTest {
     public void getCache_shouldReturnEmptyMap() throws Exception {
         assertNotNull(instance.getCache());
         assertEquals(0,instance.getCache().size());
+    }
+
+    @Test
+    public void persistItems_oneItem_shouldCacheAndSerializeOnce() throws Exception {
+        Serializable serializable = new Serializable() {
+        };
+        instance.persist(serializable);
+
+        assert(instance.getCache().size()==1);
+
+        verify(repositoryItemSerializerMock,times(1)).serialize(serializable);
+
+    }
+
+    @Test
+    public void persistItems_twoItemsSameClass_shouldTriggerSerializeTwice_CacheOnce() throws Exception {
+        Serializable serializable = new Serializable() {
+        };
+        instance.persist(serializable,serializable);
+
+        assert(instance.getCache().size()==1);
+
+        verify(repositoryItemSerializerMock,times(2)).serialize(serializable);
+    }
+
+    @Test
+    public void persistItems_twoDifferentItemsSameClass_shouldCacheAndSerializeTwice() throws Exception {
+        Serializable serializable1 = new Serializable() {
+        };
+        Serializable serializable2 = new Serializable() {
+        };
+        instance.persist(serializable1,serializable2);
+
+        assert(instance.getCache().size()==2);
+
+        verify(repositoryItemSerializerMock,times(1)).serialize(serializable1);
+        verify(repositoryItemSerializerMock,times(1)).serialize(serializable2);
     }
 }
