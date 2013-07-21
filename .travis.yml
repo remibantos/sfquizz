@@ -2,7 +2,8 @@ language: java
 jdk: oraclejdk7
 env:
  matrix:
-   - ANDROID_SDKS=sysimg-17 ANDROID_TARGET=android-4 ANDROID_ABI=armeabi-v7a
+#- ANDROID_SDKS=sysimg-17 ANDROID_TARGET=android-4 ANDROID_ABI=armeabi-v7a
+   -  ANDROID_TARGET=android-4 
 before_install:
   # Install base Android SDK
   - sudo apt-get update -qq
@@ -15,7 +16,8 @@ before_install:
   # Install required components.
   # For a full list, run `android list sdk -a --extended`
   # addon-google_apis-google-4
-  - android update sdk --filter platform-tools,android-4,extra-android-support,66,$ANDROID_SDKS --no-ui --force > /dev/null
+#  - android update sdk --filter platform-tools,android-4,extra-android-support,66,$ANDROID_SDKS --no-ui --force > /dev/null
+  - android update sdk --filter platform-tools,android-4,extra-android-support --no-ui --force > /dev/null
 
 
 script: mvn install
