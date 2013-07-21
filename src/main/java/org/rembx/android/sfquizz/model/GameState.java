@@ -85,6 +85,16 @@ public class GameState implements Serializable {
     }
 
     @Override
+    public String toString() {
+        return "GameState{" +
+                "remainingItemIds=" + remainingItemIds +
+                ", totalAnswered=" + totalAnswered +
+                ", totalAnswers=" + totalAnswers +
+                ", goodAnswers=" + goodAnswers +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         int result = remainingItemIds != null ? remainingItemIds.hashCode() : 0;
         result = 31 * result + totalAnswered;

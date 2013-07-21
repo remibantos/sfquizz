@@ -264,9 +264,9 @@ public class QuizzActivity extends RoboActivity {
      */
     private void updatePossibleAnswersArea() {
         choices.setVisibility(View.VISIBLE);
-        choice1.setText(quizzManager.getCurrent().getProposedAnswers()[0]);
-        choice2.setText(quizzManager.getCurrent().getProposedAnswers()[1]);
-        choice3.setText(quizzManager.getCurrent().getProposedAnswers()[2]);
+        choice1.setText("  "+quizzManager.getCurrent().getProposedAnswers()[0]);
+        choice2.setText("  "+quizzManager.getCurrent().getProposedAnswers()[1]);
+        choice3.setText("  "+quizzManager.getCurrent().getProposedAnswers()[2]);
         choice1.setChecked(false);
         choice2.setChecked(false);
         choice3.setChecked(false);

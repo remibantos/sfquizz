@@ -41,16 +41,18 @@ public class UsageStatistics implements Serializable {
         return goodAnswered;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UsageStatistics usageStatistics = (UsageStatistics) o;
+        UsageStatistics that = (UsageStatistics) o;
 
-        return !(answered != null ? !answered.equals(usageStatistics.answered) : usageStatistics.answered != null)
-                && !(goodAnswered != null ? !goodAnswered.equals(usageStatistics.goodAnswered) : usageStatistics.goodAnswered != null);
+        if (answered != null ? !answered.equals(that.answered) : that.answered != null) return false;
+        if (goodAnswered != null ? !goodAnswered.equals(that.goodAnswered) : that.goodAnswered != null) return false;
 
+        return true;
     }
 
     @Override
@@ -59,4 +61,13 @@ public class UsageStatistics implements Serializable {
         result = 31 * result + (goodAnswered != null ? goodAnswered.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "UsageStatistics{" +
+                "answered=" + answered +
+                ", goodAnswered=" + goodAnswered +
+                '}';
+    }
+
 }

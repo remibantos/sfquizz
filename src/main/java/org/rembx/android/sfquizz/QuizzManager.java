@@ -10,6 +10,7 @@ import roboguice.inject.ContextSingleton;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,8 +47,7 @@ public class QuizzManager {
         remainingItems = new ArrayList<QuizzItem>();
 
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(context.getAssets()
-                    .open(context.getResources().getString(R.string.questionsDS))));
+            BufferedReader br = new BufferedReader(new InputStreamReader(getQuestionDSStream()));
             String questLine;
             while ((questLine = br.readLine()) != null) {
                 QuizzItem quest = quizzItemFromCSVLine(questLine);
@@ -62,7 +62,7 @@ public class QuizzManager {
         GameState gameState = new GameState();
         gameState.setTotalAnswers(totalAnswers);
         persistenceManager.persist(gameState);
-        if (persistenceManager.getItem(UsageStatistics.class) == null){
+        if (persistenceManager.getItem(UsageStatistics.class) == null) {
             persistenceManager.persist(new UsageStatistics());
         }
 
@@ -124,8 +124,7 @@ public class QuizzManager {
 
     private void loadRemainingItemsByIds(List<Integer> ids) throws IOException {
         remainingItems = new ArrayList<QuizzItem>();
-        BufferedReader br = new BufferedReader(new InputStreamReader(context.getAssets()
-                .open(context.getResources().getString(R.string.questionsDS))));
+        BufferedReader br = new BufferedReader(new InputStreamReader(getQuestionDSStream()));
         String questLine;
         while ((questLine = br.readLine()) != null) {
             QuizzItem quizzItem = quizzItemFromCSVLine(questLine);
@@ -155,10 +154,15 @@ public class QuizzManager {
     private QuizzItem quizzItemFromCSVLine(String csvLine) {
         String[] splited = csvLine.split(";");
         String[] choices = new String[3];
-        choices[0] = "  " + splited[2];
-        choices[1] = "  " + splited[3];
-        choices[2] = "  " + splited[4];
+        choices[0] = splited[2];
+        choices[1] = splited[3];
+        choices[2] = splited[4];
         return new QuizzItem(splited[1], choices, Integer.parseInt(splited[5]) - 1, Integer.parseInt(splited[0]));
+    }
+
+    InputStream getQuestionDSStream() throws IOException {
+        return context.getAssets()
+                .open(context.getResources().getString(R.string.questionsDS));
     }
 
     /**
@@ -167,6 +171,11 @@ public class QuizzManager {
     public QuizzItem getCurrent() {
         return current;
     }
+
+    void setCurrent(QuizzItem current) {
+        this.current = current;
+    }
+
 
     public int getGoodAnswers() {
         return goodAnswers;
@@ -195,6 +204,14 @@ public class QuizzManager {
             remainingIds.add(item.getId());
         }
         return remainingIds;
+    }
+
+    List<QuizzItem> getRemainingItems() {
+        return remainingItems;
+    }
+
+    void setRemainingItems(List<QuizzItem> remainingItems) {
+        this.remainingItems = remainingItems;
     }
 
 }
