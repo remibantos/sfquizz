@@ -24,6 +24,7 @@ import roboguice.inject.InjectView;
  */
 public class QuizzActivity extends RoboActivity {
 
+    public static final String CHOICE_SEPARATOR = "  ";
     @InjectView(R.id.buttonNewGame)
     Button startBtn;
     @InjectView(R.id.buttonResumeGame)
@@ -195,7 +196,7 @@ public class QuizzActivity extends RoboActivity {
 
     private void alertAnswerResult(RadioButton rb) {
 
-        boolean success = rb.getText().equals(quizzManager.getCurrent().getAnswer());
+        boolean success = (rb.getText()).equals(CHOICE_SEPARATOR+quizzManager.getCurrent().getAnswer());
 
         String alertMess = "";
         String alertTitle = "    " + getResources().getString(R.string.wrong) + "    ";
@@ -265,9 +266,9 @@ public class QuizzActivity extends RoboActivity {
      */
     private void updatePossibleAnswersArea() {
         choices.setVisibility(View.VISIBLE);
-        choice1.setText("  "+quizzManager.getCurrent().getProposedAnswers()[0]);
-        choice2.setText("  "+quizzManager.getCurrent().getProposedAnswers()[1]);
-        choice3.setText("  "+quizzManager.getCurrent().getProposedAnswers()[2]);
+        choice1.setText(CHOICE_SEPARATOR +quizzManager.getCurrent().getProposedAnswers()[0]);
+        choice2.setText(CHOICE_SEPARATOR+quizzManager.getCurrent().getProposedAnswers()[1]);
+        choice3.setText(CHOICE_SEPARATOR+quizzManager.getCurrent().getProposedAnswers()[2]);
         choice1.setChecked(false);
         choice2.setChecked(false);
         choice3.setChecked(false);
