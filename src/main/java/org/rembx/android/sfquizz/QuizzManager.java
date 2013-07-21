@@ -2,6 +2,7 @@ package org.rembx.android.sfquizz;
 
 import android.content.Context;
 import com.google.inject.Inject;
+import org.android.sfquizz.R;
 import org.rembx.android.sfquizz.model.GameState;
 import org.rembx.android.sfquizz.model.QuizzItem;
 import org.rembx.android.sfquizz.model.UsageStatistics;

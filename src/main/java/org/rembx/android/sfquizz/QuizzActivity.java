@@ -12,6 +12,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import com.google.inject.Inject;
+import org.android.sfquizz.R;
 import org.rembx.android.sfquizz.model.UsageStatistics;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
