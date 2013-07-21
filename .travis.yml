@@ -2,16 +2,19 @@ language: java
 jdk: oraclejdk7
 env:
  matrix:
-   - ANDROID_SDKS=sysimg-4           ANDROID_TARGET=android-4  ANDROID_ABI=armeabi-v7a
+   - ANDROID_SDKS=sysimg-17 ANDROID_TARGET=android-4 ANDROID_ABI=armeabi-v7a
 before_install:
   # Install base Android SDK
-  - wget http://dl.google.com/android/android-sdk_r22.0.4-linux.tgz
-  - tar xzf android-sdk_r22.0.4-linux.tgz
+  - sudo apt-get update -qq
+  - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null; fi
+  - wget http://dl.google.com/android/android-sdk_r21.1-linux.tgz
+  - tar xzf android-sdk_r21.1-linux.tgz
   - export ANDROID_HOME=$PWD/android-sdk-linux
   - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
 
   # Install required components.
-  #  addon-google_apis-google-4
+  # For a full list, run `android list sdk -a --extended`
+  # addon-google_apis-google-4
   - android update sdk --filter platform-tools,android-4,extra-android-support,66,$ANDROID_SDKS --no-ui --force > /dev/null
 
 
