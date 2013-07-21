@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	  package="org.android.sfquizz"
-      android:versionName="1.7" android:versionCode="20">
+      android:versionName="1.7.1" android:versionCode="21">
  
 <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4">   </uses-sdk>
 <supports-screens android:smallScreens="true" android:resizeable="true" android:largeScreens="true" android:anyDensity="true" android:normalScreens="true"/>
