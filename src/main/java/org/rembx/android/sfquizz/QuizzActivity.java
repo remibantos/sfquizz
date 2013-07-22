@@ -20,7 +20,7 @@ import roboguice.inject.InjectView;
 /**
  * SF Quizz Activity.
  *
- * @author remibantos
+ * @author remibantos 
  */
 public class QuizzActivity extends RoboActivity {
 
