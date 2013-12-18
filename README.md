@@ -1,6 +1,4 @@
-Sample of android science fiction quizz application using roboguice for dependency injection.  
-This application is deployed on Google Play: https://play.google.com/store/apps/details?id=org.android.sfquizz.
+Simple android science fiction quizz application using roboguice for dependency injection.  
+Deployed on Google Play: https://play.google.com/store/apps/details?id=org.android.sfquizz.
 
-Localized in english and french.
-
-Quizz data are stored in csv files.
+Continous integration using Travis-CI. (Downloads android sdk from Travis VM during build and uses android-maven-plugin to test .apk build) 
