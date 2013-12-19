@@ -84,7 +84,7 @@ public class QuizzActivityIT {
 
     }
 
-    @Test
+    @Test // TODO to complete
     public void answerEveryQuestions_shouldReadEndGameScreen() throws Exception {
 
         newGameButton.performClick();
