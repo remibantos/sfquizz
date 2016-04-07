@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/remibantos/sfquizz.svg?branch=master)](https://travis-ci.org/remibantos/sfquizz)
+
 Simple android science fiction quizz application using roboguice for dependency injection.  
 Deployed on Google Play: https://play.google.com/store/apps/details?id=org.android.sfquizz.
 
