@@ -1,23 +1,22 @@
 language: java
-jdk: oraclejdk7
+jdk: oraclejdk8
 env:
+ global:
+   -  ANDROID_SDK_PACKAGE=android-sdk_r24.4.1-linux.tgz
  matrix:
-#- ANDROID_SDKS=sysimg-17 ANDROID_TARGET=android-4 ANDROID_ABI=armeabi-v7a
-   -  ANDROID_TARGET=android-4 
+   -  ANDROID_TARGET=android-4 # DONUT, 1.6 obsolete android version
 before_install:
   # Install base Android SDK
   - sudo apt-get update -qq
   - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null; fi
-  - wget http://dl.google.com/android/android-sdk_r21.1-linux.tgz
-  - tar xzf android-sdk_r21.1-linux.tgz
+  - wget http://dl.google.com/android/${ANDROID_SDK_PACKAGE}
+  - tar xzf ${ANDROID_SDK_PACKAGE}
   - export ANDROID_HOME=$PWD/android-sdk-linux
   - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
 
   # Install required components.
   # For a full list, run `android list sdk -a --extended`
-  # addon-google_apis-google-4
-#  - android update sdk --filter platform-tools,android-4,extra-android-support,66,$ANDROID_SDKS --no-ui --force > /dev/null
-  - android update sdk --filter platform-tools,android-4,extra-android-support --no-ui --force > /dev/null
-
+  - echo y | android update sdk -a --filter tools,platform-tools,build-tools-23.0.3 --no-ui --force
+  - echo y | android update sdk -a --filter ${ANDROID_TARGET},extra-android-support --no-ui --force
 
 script: mvn install
